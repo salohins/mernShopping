@@ -2,14 +2,15 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const config = require('config');
 const jwt = require('jsonwebtoken');
+const auth = require('../../middleware/auth');
 
 const router = express.Router();
 
 // Item Model 
 const User = require('../../models/User');
 
-// @route GET api/users
-// @desc Register new user
+// @route  GET api/users
+// @desc   Register new user
 // @access Public  
 
 router.post('/', (req, res) => {
@@ -61,7 +62,10 @@ router.post('/', (req, res) => {
         })
 });
 
-// Router POST api/users/auth
+// @route POST api/users/auth
+// @desc  Auth user
+// @acess Public
+
 router.post('/auth', (req, res) => {
     const { email, password } = req.body
 
@@ -73,9 +77,8 @@ router.post('/auth', (req, res) => {
     // Check for existing user 
     User.findOne({ email })
         .then(user => {
-            if (!user) return req.status(400).json({ msg: 'User does not exist' })
-
-            // Validate password
+            if (!user) return res.status(400).json({ msg: 'User does not exist' })
+                // Validate password
             bcrypt.compare(password, user.password)
                 .then(isMatch => {
                     if (!isMatch) return res.status(400).json({  msg: 'Invalid credentials'  })
@@ -99,5 +102,16 @@ router.post('/auth', (req, res) => {
                 })
         })
 })
+
+// @route GET api/users/auth/user
+// @desc  Auth user
+// @acess Private
+
+router.get('/auth/user', auth, (req, res) => {
+    User.findById(req.user.id)
+        .select('-password')
+        .then(user => res.json(user))
+})
+
 
 module.exports = router;
