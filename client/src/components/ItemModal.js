@@ -31,11 +31,18 @@ const ItemModal = props => {
 
     return (
         <div>
-            <Button
-                color='dark'
-                style={{marginBottom: '2rem'}}
-                onClick={toggle}
-            >Add Item</Button>
+            { props.isAuthenticated && 
+                <Button
+                    color='dark'
+                    style={{marginBottom: '2rem'}}
+                    onClick={toggle}
+                >Add Item</Button> 
+            }
+
+            { !props.isAuthenticated &&
+                <h4 className='mb-3 ml-4'>Please log in to manage items</h4>
+            }
+           
 
             <Modal
                 isOpen={isOpen}
@@ -69,11 +76,13 @@ const ItemModal = props => {
 }
 
 ItemModal.propTypes = {
-    addItem: PropTypes.func.isRequired
+    addItem: PropTypes.func.isRequired,
+    isAuthenticated: PropTypes.bool
 }
 
 const mapStateToProps = state => ({
-    item: state.itemS
+    item: state.item,
+    isAuthenticated: state.auth.isAuthenticated
 });
 
 export default connect(mapStateToProps, { addItem })(ItemModal);
